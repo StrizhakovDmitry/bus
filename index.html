@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>BCProject</title>
+<link rel="stylesheet" type="text/css" href="2.css">
+</head>
+<body>
+<div class="marshrut" id="block_1">
+<div class="left">left<br>left<br>left<br>left<br>left<br></div>
+dfbdfbdfs
+<div class="right">right<br>right<br>right<br>right<br>right<br>right<br></div>
+</div>
+<div class="marshrut" id="block_2">
+<div class="left">left1<br>left<br>left<br>left<br>left<br></div>
+dfbdfbdfs
+<div class="right">right<br>right<br>right<br>right<br>right<br>right<br></div>
+</div>
+<div class="marshrut" id="block_3">
+<div class="left">left2<br>left<br>left<br>left<br>left<br></div>
+dfbdfbdfs
+<div class="right">right<br>right<br>right<br>right<br>right<br>right<br></div>
+</div>
+</body>
+<script type="text/javascript">
+var a=document.getElementById("block_1");
+var b = "200px";
+a.style.height = b;
+var mass = a.childNodes;
+for (var i=0; i<mass.length; i++)
+	{
+	if (mass[i].nodeType == 1)
+	mass[i].style.height = b;
+	}
+var a=document.getElementById("block_2");
+var b = "200px";
+a.style.height = b;
+var mass = a.childNodes;
+for (var i=0; i<mass.length; i++)
+	{
+	if (mass[i].nodeType == 1)
+	mass[i].style.height = b;
+	}
+var a=document.getElementById("block_3");
+var b = "200px";
+a.style.height = b;
+var mass = a.childNodes;
+for (var i=0; i<mass.length; i++)
+	{
+	if (mass[i].nodeType == 1)
+	mass[i].style.height = b;
+	}
+
+</script>
+</html>

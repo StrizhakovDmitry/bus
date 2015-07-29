@@ -1,0 +1,25 @@
+﻿.marshrut
+	{
+	background-color:yellow;
+	display:block;
+	}
+.left
+	{
+	background-color:red;
+	display:block;
+	width:15%;
+	float:left;
+	}
+.center
+	{
+	background-color:green;
+	display:block;
+	width:70%;
+	}
+.right
+	{
+	background-color:blue;
+	display:block;
+	width:15%;
+	float:right;
+	}

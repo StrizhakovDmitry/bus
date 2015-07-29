@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="jquery-1.10.2.js"></script>
+<link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+</body>
+<script type="text/javascript">
+document.body.style.margin = "0 0 0 0px";
+var divsize = "200px"
+var getMarReq = new XMLHttpRequest ();
+var getMash = new XMLHttpRequest ();
+var	getDat = new XMLHttpRequest ();
+var getGosNum = new XMLHttpRequest ();
+var DivS = {};
+var CAR_OFF_ROUTE = -1;
+var CAR_ON_THE_FINAL = 0;
+var MOVE_SIDE_A = 1;
+var MOVE_SIDE_B = 2;
+var IN_MOTION = 0;
+var ON_FINAL_A = 1;
+var ON_FINAL_B = 2;
+getGosNums();
+function getGosNums() //получает массив Гос.Номеров (запрос)
+	{
+	var link = "http://95.82.215.148/works/minibus/carnum.php";
+	getGosNum.open ("GET", link, false);
+	getGosNum.send(null);
+	getGosNum.onreadystatechange = addCarnumsArr ();
+	}
+function addCarnumsArr () //получает массив Гос.Номеров (ответ)
+	{
+	var mass = getGosNum.responseText;
+	DivS.cars = JSON.parse(mass);
+	}
+var getMar = function () //Получает массив маршрутов (запрос)
+	{
+	var link = "http://95.82.215.148/works/minibus/getmar.php";
+	getMarReq.open  ("GET", link, false);
+	getMarReq.send(null);
+	getMarReq.onreadystatechange = showDivs();
+	}
+function showDivs () //Получает массив маршрутов (ответ)
+	{
+	var mass = getMarReq.responseText;
+	DivS.mass = JSON.parse(mass);
+	for (var i=0;i<DivS.mass.length;i++)
+		{
+		createDivs (DivS.mass[i],i);
+		}
+	getCar();
+	}
+function createDivs (num,i) //Создаёт поля для маршрутов
+	{
+	var leftDiv = document.createElement('div'); //левая панель (конечная А)
+	leftDiv.id = 'left_'+num;
+	leftDiv.style.position = "absolute";
+	leftDiv.style.left = "0px";
+	leftDiv.style.top = i*200+"px";
+	leftDiv.style.height = "200px";
+	leftDiv.style.width = "70px";
+	//leftDiv.style.backgroundColor = "#CCFF99";
+	document.body.appendChild(leftDiv);
+	leftDiv.className = "left";
+	
+	var forgetCarPanel = document.createElement('div'); //создаёт панель машин вне маршрута
+	forgetCarPanel.id = 'forgetCar_'+num;
+	forgetCarPanel.style.position = "absolute";
+	forgetCarPanel.style.right = "100px";
+	forgetCarPanel.style.top = (i*200)+"px"
+	forgetCarPanel.style.height = "30px";
+	forgetCarPanel.style.width = "500px";
+	forgetCarPanel.className = "forgetCar";
+	document.body.appendChild(forgetCarPanel);
+	forgetCarPanel.innerHTML = "123";
+	
+	
+	var rightDiv = document.createElement('div'); //правое поле (конечная Б)
+	rightDiv.id = 'right_'+num;
+	rightDiv.style.position = "absolute";
+	rightDiv.style.right = "0px";
+	rightDiv.style.top = i*200+"px";
+	rightDiv.style.height = "200px";
+	rightDiv.style.width = "70px";
+	//rightDiv.style.backgroundColor = "#CCFF99";
+	document.body.appendChild(rightDiv);
+	rightDiv.className = "right";
+	
+	var centrDiv = document.createElement('div'); //центральная панель (в движении)
+	centrDiv.innerHTML = "<p class = 'trackName'>Маршрут "+num+"</p>";
+	centrDiv.id = 'cent_'+num;
+	centrDiv.className = "centr";
+	centrDiv.style.position = "absolute";
+	centrDiv.style.right = "70px";
+	centrDiv.style.left = "70px";
+	centrDiv.style.top = i*200+"px";
+	centrDiv.style.height = "200px";
+	//centrDiv.style.backgroundColor = "#CCAA99";
+	document.body.appendChild(centrDiv);
+	}
+function getCar() //получает массив из машин (запрос)
+	{
+	var link = "http://95.82.215.148/works/minibus/getmash.php";
+	getMash.open ("GET", link, false);
+	getMash.send(null);
+	getMash.onreadystatechange = getCars()
+	}
+function getCars() //получает массив из машин (ответ), вызывает функцию создания объектов машин
+	{
+	var mass = getMash.responseText;
+	mass = JSON.parse(mass);
+	for (var i=0; i<mass.length; i++)
+		{
+			dottingCars(mass[i][0],mass[i][1],mass[i][2],mass[i][3],mass[i][4],mass[i][5]);
+																				//mass[i][0] - ID
+		}																		//mass[i][1] - AT_NUM
+	setInterval(actData, 1000);													//mass[i][2] - AT_POSITION
+	}																			//mass[i][3] - AT_ONFINAL
+function dottingCars (id,AT_NUM,AT_POSITION,AT_ONFINAL,AT_ONROUTE,mar)			//mass[i][4] - AT_ONROUTE
+	{			//создаёт объекты машин											//mass[i][5] - ROUTENAME
+	var tmpcar = document.createElement('div');
+	tmpcar.className = "car";
+	DivS.imgCar = document.createElement('img');
+	var carNum = document.createElement('div');
+	carNum.className = "numCar";
+	tmpcar.appendChild(carNum);
+	tmpcar.id = "AT_"+id;
+	//tmpcar.className = "bus";
+	for (var i=0;i < DivS.cars.length;i++)
+		{
+		if (AT_NUM == DivS.cars[i][1])
+		var carnum = DivS.cars[i][2];
+		}
+	carNum.innerHTML = carnum;
+	
+	if (AT_ONROUTE == CAR_OFF_ROUTE || AT_ONROUTE == CAR_ON_THE_FINAL)
+		{
+		var idDiv = 'cent_'+mar;
+		var Div = document.getElementById(idDiv);
+		Div.appendChild(tmpcar);
+		DivS.imgCar.className = "imgCar";
+		tmpcar.style.display = "none";
+		tmpcar.appendChild(DivS.imgCar); 
+		}
+		if (AT_ONROUTE == MOVE_SIDE_A) 
+			{
+			var idDiv = 'cent_'+mar;
+			var Div = document.getElementById(idDiv);
+			Div.appendChild(tmpcar);
+			//tmpcar.style.color = "red";
+			tmpcar.style.display = "block";
+			tmpcar.style.position = "absolute";
+			tmpcar.style.top = "50px";
+			postiton = ((tmpcar.parentNode.offsetWidth-70)/100)*(AT_POSITION/999999*100);
+			tmpcar.style.left = postiton+"px";
+			DivS.imgCar.src = "img/Car_ToRigth.png";
+			DivS.imgCar.className = "imgCar";
+			tmpcar.appendChild(DivS.imgCar); 
+			}
+		if (AT_ONROUTE == MOVE_SIDE_B)
+			{
+			var idDiv = 'cent_'+mar;
+			var Div = document.getElementById(idDiv);
+			Div.appendChild(tmpcar);
+			tmpcar.style.top = "130px";
+			//tmpcar.style.color = "green";
+			tmpcar.style.position = "absolute";
+			postiton = ((tmpcar.parentNode.offsetWidth-70)/100)*(AT_POSITION/999999*100);
+			tmpcar.style.right = postiton+"px";
+			DivS.imgCar.src = "img/Car_ToLeft.png";
+			DivS.imgCar.className = "imgCar";
+			tmpcar.appendChild(DivS.imgCar); 
+			}
+	}
+	
+function actData() //Запрашивает положение машин
+	{
+	var link = "http://95.82.215.148/works/minibus/getmash.php";
+	getDat.open ("GET", link, false);
+	getDat.send(null);
+	getDat.onreadystatechange = actD ();
+	}
+function actD () //Актуализирует положение машин
+	{
+	reloadPanels ();
+	var mass = getDat.responseText;
+	mass = JSON.parse(mass);
+	for (var i=0; i<mass.length; i++)
+		{
+		if (mass[i][4] == MOVE_SIDE_A) 
+			{
+			document.getElementById("AT_"+mass[i][0]).style.position = "absolute";
+			var postiton = ((document.getElementById("AT_"+mass[i][0]).parentNode.offsetWidth-70)/100)*(mass[i][2]/999999*100);
+			document.getElementById("AT_"+mass[i][0]).style.left = postiton+"px";
+			document.getElementById("AT_"+mass[i][0]).style.display = "block";
+			document.getElementById("AT_"+mass[i][0]).style.top = "50px";
+			//document.getElementById("AT_"+mass[i][0]).style.color = "red";
+			document.getElementById("AT_"+mass[i][0]).lastChild.src = "img/Car_ToRigth.png";
+			document.getElementById("AT_"+mass[i][0]).lastChild.className = "imgCar";
+			document.getElementById("AT_"+mass[i][0]).firstChild.className = "numCar";
+			}
+		if (mass[i][4] == MOVE_SIDE_B) 
+			{
+			document.getElementById("AT_"+mass[i][0]).style.position = "absolute";
+			var postiton = ((document.getElementById("AT_"+mass[i][0]).parentNode.offsetWidth-70)/100)*(mass[i][2]/999999*100);
+			document.getElementById("AT_"+mass[i][0]).style.right = postiton+"px";
+			document.getElementById("AT_"+mass[i][0]).style.display = "block";
+			document.getElementById("AT_"+mass[i][0]).style.top = "130px";
+			//document.getElementById("AT_"+mass[i][0]).style.color = "green";
+			//DivS.imgCar.src = "img/Car_ToRigth.png";
+			document.getElementById("AT_"+mass[i][0]).lastChild.src = "img/Car_ToLeft.png";
+			document.getElementById("AT_"+mass[i][0]).lastChild.className = "imgCar";
+			document.getElementById("AT_"+mass[i][0]).firstChild.className = "numCar";
+			}
+		if (mass[i][4] == CAR_ON_THE_FINAL || mass[i][4]== CAR_OFF_ROUTE)
+			{
+			document.getElementById("AT_"+mass[i][0]).style.display = "none";
+			}
+		if (mass[i][3] == ON_FINAL_A)
+			{
+			var a = "left_"+ mass[i][5];
+			a = document.getElementById(a);
+			tmpcar = document.createElement('div');
+			for (var cnum = 0; cnum < DivS.cars.length;cnum++)
+				{
+				if (mass[i][1] == DivS.cars[cnum][1])
+				var carnum = DivS.cars[cnum][2];
+				} 
+			tmpcar.innerHTML = carnum;
+			a.appendChild(tmpcar);
+			}
+		if (mass[i][3] == ON_FINAL_B)
+			{
+			var a = "right_"+ mass[i][5];
+			a = document.getElementById(a);
+			tmpcar = document.createElement('div');
+			for (var cnum = 0; cnum < DivS.cars.length;cnum++)
+				{
+				if (mass[i][1] == DivS.cars[cnum][1])
+				var carnum = DivS.cars[cnum][2];
+				}
+			tmpcar.innerHTML = carnum;
+			a.appendChild(tmpcar);
+			}
+		}
+	}
+	
+function reloadPanels () //чистит левую, правую панель, forget панель
+	{
+	for (var i=0; i < document.body.childNodes.length; i++)
+		{
+		if (document.body.childNodes[i].nodeType == 1)
+			{
+			if (document.body.childNodes[i].id.substring(0,4) == "left" || document.body.childNodes[i].id.substring(0,4) == "righ" || document.body.childNodes[i].id.substring(0,4) == "forg")
+				{
+				while (document.body.childNodes[i].lastChild)
+					{
+					document.body.childNodes[i].removeChild(document.body.childNodes[i].lastChild)
+					}
+				}
+			}
+		}
+	}
+
+//reloadPanels ()
+window.onload = getMar ();
+
+
+
+
+
+
+
+
+
+
+
+/*
+ID -  ID авто
+AT_NUM - номер терминала
+AT_TIME - время отправления данных с терминала
+SV_TIME - время прихода данных на сервер
+AT_COORD - кординаты
+AT_SPEED - скорость
+AT_VECTOR - направление
+AT_POSITION - позиция (0-999999)
+AT_ONFINAL - 0 - не на конечной; 1 на конечной А; 2 на конечной Б
+AT_ONROUTE -  -1 - не на маршруте; 0 - стоит на конечной, 1 - двигается в сторону А; 2 - двигается в сторону B
+ROUTENAME - название маршрута.
+ONSTATEBY.
+*/
+</script>
+ыпмфыв
+</html>

@@ -1,0 +1,40 @@
+﻿<script type="text/javascript">
+function someObject()
+	{
+		var name = null;
+		return 
+			{
+			setName: function(_name)
+				{
+				name = _name;
+				},
+			getName: function()
+				{
+				return name;
+				}
+			}
+	}
+function someObjectCollection()
+{
+	var collection = {};
+	return {
+		addObject: function(someObject)
+		{
+			collection[someObject.getName()] = someObject;
+		},
+		getObject:function(name)
+		{
+			return collection[name];
+		}
+	}
+}
+var collection = someObjectCollection();
+for (i=0; i < 10; i++)
+{
+	var o = someObject();
+	o.setName('obj' + i);
+	
+	collection.addObject(o);
+}
+alert(collection.getObject('obj0').getName());
+</script>
